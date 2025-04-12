@@ -1,19 +1,22 @@
 namespace :clear_cache do
-    desc "Borra archivos de file_store más viejos que 24 horas"
-    task clean_old: :environment do
-      cutoff = 24.hours.ago
-      path = Rails.root.join("tmp/cache/listing_cache")
-  
-      Dir.glob("#{path}/**/*").each do |file|
-        next unless File.file?(file)
-        # debugger
-        if File.mtime(file) < cutoff
-          File.delete(file)
-          puts "🧽 Borrado #{file}"
-        end
+  desc "Borra entradas de cache JSON más viejas que 24 horas"
+  task clean_old: :environment do
+    require 'time'
+
+    path = ENV.fetch("CACHE_DIR", "cache_data")
+    ttl = 24.hours.ago
+    deleted = 0
+
+    Dir.glob("#{path}/*.json").each do |file|
+      data = JSON.parse(File.read(file))
+      data.reject! do |_, entry|
+        Time.parse(entry["seen_at"]) < ttl rescue false
       end
-  
-      puts "✅ Limpieza completa"
+
+      File.write(file, JSON.pretty_generate(data))
+      deleted += 1
     end
+
+    puts "✅ Limpieza completa. Archivos procesados: #{deleted}"
   end
-  
+end

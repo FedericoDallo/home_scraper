@@ -7,7 +7,7 @@ class CheckAll
   
   def run
     notifier = Notifier.new
-    cache = ListingCache.new
+    cache = ListingCacheJson.new
     @scrapers.each do |scraper|
       name = scraper.class::NAME
       scraper.fetch_listings.each do |result|

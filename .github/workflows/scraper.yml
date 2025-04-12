@@ -1,18 +1,19 @@
-name: Ejecutar scraper cada hora
+name: Ejecutar scraper cada hora y actualizar cache
 
 on:
   schedule:
-    - cron: "0 * * * *"  # cada hora en UTC
-  workflow_dispatch:      # permite correrlo manualmente desde la web
+    - cron: "0 * * * *"  # Cada hora (UTC)
+  workflow_dispatch:
 
 jobs:
-  run-scraper:
+  scrape:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ruby/setup-ruby@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.2
 
@@ -21,13 +22,39 @@ jobs:
           gem install bundler
           bundle install
 
-      - name: Configurar claves
+      - name: Configurar Git
         run: |
-          mkdir -p config
-          echo "$RAILS_MASTER_KEY" > config/master.key
+          git config --global user.name "scraper-bot"
+          git config --global user.email "scraper@example.com"
+
+      - name: Clonar repo de cache
+        run: |
+          git clone https://x-access-token:${{ secrets.CACHE_REPO_TOKEN }}@github.com/FedericoDallo/home_scraper_cache.git cache_repo
+          mkdir -p cache_data
+          cp -r cache_repo/. cache_data/
 
       - name: Ejecutar scraper
         run: bundle exec rails check:all
         env:
           RAILS_ENV: production
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+          CACHE_DIR: cache_data
+
+      - name: Diagnóstico mostrar contenido de cache_data
+        run: |
+          echo "📁 Contenido de cache_data:"
+          ls -la cache_data || echo "⚠️ No existe cache_data/"
+          echo
+          echo "📄 Archivos JSON:"
+          cat cache_data/*.json || echo "⚠️ No hay archivos JSON"
+
+      - name: Guardar nuevos datos si hubo cambios
+        run: |
+          cd cache_repo
+          mkdir -p ../cache_data
+          shopt -s dotglob nullglob
+          cp -r ../cache_data/* . || echo "⚠️ No new files to copy"
+          git add .
+          git status
+          git commit -m "update seen urls [skip ci]" || echo "no changes"
+          git push

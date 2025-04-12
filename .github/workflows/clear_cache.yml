@@ -12,7 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ruby/setup-ruby@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.2
 
@@ -21,13 +22,27 @@ jobs:
           gem install bundler
           bundle install
 
-      - name: Configurar claves
+      - name: Configurar Git
         run: |
-          mkdir -p config
-          echo "$RAILS_MASTER_KEY" > config/master.key
+          git config --global user.name "scraper-bot"
+          git config --global user.email "scraper@example.com"
+
+      - name: Clonar repo de cache
+        run: |
+          git clone https://x-access-token:${{ secrets.CACHE_REPO_TOKEN }}@github.com/FedericoDallo/home_scraper_cache.git cache_repo
+          cp -r cache_repo cache_data
 
       - name: Ejecutar limpieza de cache
         run: bundle exec rails clear_cache:clean_old
         env:
           RAILS_ENV: production
+          CACHE_DIR: cache_data
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+
+      - name: Guardar cambios de limpieza
+        run: |
+          cd cache_repo
+          cp -r ../cache_data/* .
+          git add .
+          git commit -m "cache cleanup [skip ci]" || echo "no changes"
+          git push
