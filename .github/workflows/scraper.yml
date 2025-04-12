@@ -1,0 +1,33 @@
+name: Ejecutar scraper cada hora
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # cada hora en UTC
+  workflow_dispatch:      # permite correrlo manualmente desde la web
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+
+      - name: Instalar dependencias
+        run: |
+          gem install bundler
+          bundle install
+
+      - name: Configurar claves
+        run: |
+          mkdir -p config
+          echo "$RAILS_MASTER_KEY" > config/master.key
+
+      - name: Ejecutar scraper
+        run: bundle exec rails check:all
+        env:
+          RAILS_ENV: production
+          RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
