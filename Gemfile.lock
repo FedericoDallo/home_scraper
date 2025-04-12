@@ -90,13 +90,9 @@ GEM
     erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
-    excon (1.2.5)
-      logger
     fugit (1.11.1)
       et-orbi (~> 1, >= 1.2.11)
       raabro (~> 1.4)
-    gli (2.22.2)
-      ostruct
     globalid (1.2.1)
       activesupport (>= 6.1)
     httparty (0.23.1)
@@ -151,10 +147,6 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.7-x86_64-linux-musl)
       racc (~> 1.4)
-    oj (3.16.10)
-      bigdecimal (>= 3.0)
-      ostruct (>= 0.2)
-    ostruct (0.6.1)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
@@ -163,10 +155,6 @@ GEM
       stringio
     puma (6.6.0)
       nio4r (~> 2.0)
-    pushover (3.0.3)
-      excon
-      gli
-      oj
     raabro (1.4.0)
     racc (1.8.1)
     rack (3.1.12)
@@ -262,7 +250,6 @@ DEPENDENCIES
   httparty
   nokogiri
   puma
-  pushover
   rails (~> 8.0.2)
   solid_cache
   solid_queue

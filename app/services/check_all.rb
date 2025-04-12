@@ -6,15 +6,18 @@ class CheckAll
   end
   
   def run
+    notifier = Notifier.new
     cache = ListingCache.new
     @scrapers.each do |scraper|
       name = scraper.class::NAME
       scraper.fetch_listings.each do |result|
-        if cache.read(name, result[:url])
-          puts "Already seen: #{result[:url]}"
+        result => { title: message, url: }
+        if cache.read(name, url)
+          puts "Already seen: #{url}"
         else
-          cache.write(name, result[:url])
-          puts "New listing: #{result[:url]}"
+          cache.write(name, url)
+          notifier.send(title: "Nuevo apto en #{name.titleize}", message:, url:)
+          puts "New listing: #{url}"
         end
       end
     end

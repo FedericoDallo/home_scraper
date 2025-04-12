@@ -13,6 +13,10 @@ class ListingCache
       Rails.cache.delete(key(source, url))
     end
 
+    def clear
+      Rails.cache.clear
+    end
+
     def seen?(source, url)
       entry = Rails.cache.read(key(source, url))
       return false if entry.nil?

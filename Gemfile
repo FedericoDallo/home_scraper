@@ -10,9 +10,6 @@ gem "sqlite3", ">= 2.1"
 gem "httparty"
 gem "nokogiri"
 
-# Notificaciones por Pushover
-gem "pushover"
-
 # Servidor web
 gem "puma"
 
