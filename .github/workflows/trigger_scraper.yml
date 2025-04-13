@@ -1,0 +1,19 @@
+name: Disparar scraper automáticamente (via API)
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # Cada hora (UTC)
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Llamar a workflow_dispatch de home_scraper
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.GH_TOKEN_TRIGGER }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/FedericoDallo/home_scraper/actions/workflows/scraper.yml/dispatches \
+            -d '{"ref":"main"}'

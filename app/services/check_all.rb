@@ -1,7 +1,8 @@
 class CheckAll
   def initialize
     @scrapers = [
-      InfoCasasScraper.new
+      InfoCasasScraper.new,
+      MercadoLibreScraper.new
     ]
   end
   
