@@ -27,7 +27,7 @@ class MercadoLibreScraper
   
         {
           title: anchor.text.strip,
-          url: anchor["href"]
+          url: anchor["href"].split("#")[0]
         }
       end.compact.uniq { |l| l[:url] }
     end.flatten
