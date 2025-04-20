@@ -29,13 +29,20 @@ class InfoCasasScraper < BaseScraper
     card["href"]
   end
 
-  def get_price(card)
+  def get_prices(card)
     card.at_css(".lc-price").children.map(&:children).then do |base_price_container, expenses_container = []|
       [
         get_price_number(base_price_container.last.text),
-        (get_price_number(expenses_container[2]&.text) rescue 0)
-      ].sum
+        (get_price_number(expenses_container[2]&.text) rescue nil)
+      ].compact
     end
+  end
+
+  def get_metadata(doc)
+    json_data = get_next_data(doc)
+
+    props = json_data.dig("props", "pageProps", "apolloState")
+    property = props&.values&.find { |v| v.is_a?(Hash) && v["__typename"] == "Property" }
   end
 
   def get_next_data(doc)
@@ -45,13 +52,12 @@ class InfoCasasScraper < BaseScraper
     JSON.parse(json_text)
   end
 
+  def get_expenses(doc)
+    get_metadata(doc)&.dig("commonExpenses").to_i
+  end
+
   def garages_on_info(doc)
-    json_data = get_next_data(doc)
-
-    props = json_data.dig("props", "pageProps", "apolloState")
-    property = props&.values&.find { |v| v.is_a?(Hash) && v["__typename"] == "Property" }
-
-    property["garage"]
+    get_metadata(doc)&.dig("garage").to_i
   end
 
   def get_description(doc)

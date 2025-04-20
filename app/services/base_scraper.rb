@@ -11,25 +11,40 @@ class BaseScraper
     "Accept-Language" => "en-US,en;q=0.5"
   }
 
-  def fetch_listings(debugging_mode = false)
+  def fetch_listings(mode = 0)
     listings_path.map do |path|
       safe_path = URI::DEFAULT_PARSER.escape("#{base_path}#{path}")
-      puts "Fetching #{base_url}#{safe_path}" if debugging_mode
+      puts "Fetching #{base_url}#{safe_path}" if mode == DEBUGGING_MODE
       response = HTTParty.get("#{base_url}#{safe_path}", headers: COMMON_HEADERS)
       doc = Nokogiri::HTML(response.body)
 
-      results = get_cards(doc).map do |card|
-        print_info(card) if debugging_mode
+      results = get_cards(doc).filter_map do |card|
+        print_info(card) if mode == DEBUGGING_MODE
         next if reserved?(card)
 
-        title, href, price = get_info(card)
+        title, href, prices = get_info(card)
         url = URI.join(base_url, href).to_s
-        next if !allowed_price?(price, card, url)
+        next if !allowed_price?(prices, card, url)
 
-        { title:, url:, price: }
-      end.compact.uniq { |l| l[:url] }
+        if mode == NORMAL_MODE
+          { title:, url:, prices: prices.sum }
+        else
+          instance_doc = Nokogiri::HTML(HTTParty.get(url, headers: COMMON_HEADERS))
+          {
+            title:,
+            url:,
+            prices: { base: prices[0], expenses: prices[1] },
+            description: get_description(instance_doc),
+            garage_on_title: garage_on_title?(card),
+            garages_on_info: garages_on_info(instance_doc),
+            garage_on_description: garage_on_description?(instance_doc),
+            reserved: reserved?(card),
+            allowed_price: allowed_price?(prices, card, url)
+          }
+        end
+      end
 
-      if debugging_mode
+      if mode == DEBUGGING_MODE
         puts
         puts "=" * 100
         puts "=" * 100
@@ -37,6 +52,6 @@ class BaseScraper
       end
 
       results
-    end.flatten
+    end.flatten.uniq { |l| l[:url] }
   end
 end

@@ -14,16 +14,18 @@ module ScraperCommon
     [
       get_title(doc),
       URI::DEFAULT_PARSER.escape(get_href(doc)),
-      get_price(doc)
+      get_prices(doc)
     ]
   end
 
-  def allowed_price?(price, card, url)
-    price <= MAX_PRICE || (price <= MAX_PRICE + GARAGE_PRICE_INCREASE && has_garage?(card, url))
-  end
+  def allowed_price?(prices, card, url)
+    return prices.sum <= MAX_PRICE || (prices.sum <= MAX_PRICE + GARAGE_PRICE_INCREASE && garage_on_title?(card)) if prices.size == 2
 
-  def has_garage?(card, url)
-    garage_on_title?(card) || garage_on_page?(url)
+    response = HTTParty.get(url, headers: { "User-Agent" => "Mozilla/5.0" })
+    doc = Nokogiri::HTML(response.body)
+
+    prices << get_expenses(doc)
+    prices.sum <= MAX_PRICE || (prices.sum <= MAX_PRICE + GARAGE_PRICE_INCREASE && garage_on_page?(doc))
   end
 
   def garage_on_title?(card)
@@ -33,10 +35,7 @@ module ScraperCommon
     garage_in_text?(title)
   end
 
-  def garage_on_page?(url)
-    response = HTTParty.get(url, headers: { "User-Agent" => "Mozilla/5.0" })
-    doc = Nokogiri::HTML(response.body)
-
+  def garage_on_page?(doc)
     garages_on_info(doc) > 0 || garage_on_description?(doc)
   end
 
@@ -78,7 +77,7 @@ module ScraperCommon
     puts "Garage on description: #{garage_on_description?(doc)}"
     puts "Reserved: #{reserved?(card)}"
     safe_href = URI::DEFAULT_PARSER.escape(get_href(card))
-    puts "Allowed price: #{allowed_price?(get_price(card), card, URI.join(base_url, safe_href).to_s)}"
+    puts "Allowed price: #{allowed_price?(get_prices(card), card, URI.join(base_url, safe_href).to_s)}"
     puts "*" * 100
   end
 end
