@@ -41,7 +41,7 @@ class InfoCasasScraper < BaseScraper
     card.at_css(".lc-price").children.map(&:children).then do |base_price_container, expenses_container = []|
       [
         get_price_number(base_price_container.last.text),
-        get_price_number(expenses_container[2]&.text)
+        (get_price_number(expenses_container[2]&.text) rescue 0)
       ].sum
     end
   end
