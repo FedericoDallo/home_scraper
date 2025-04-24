@@ -24,5 +24,8 @@ class CheckAll
         end
       end
     end
+
+  rescue => e
+    notifier.send_error(e)
   end
 end

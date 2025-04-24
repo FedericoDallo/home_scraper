@@ -4,6 +4,16 @@ class Notifier
   PUSHOVER_URL = "https://api.pushover.net/1/messages.json"
 
   def send(title:, message:, url:)
+    send_notification(title:, message:, url:)
+  end
+
+  def send_error(error)
+    send_notification(title: "Error while scraping", message: error.message, url: nil)
+  end
+
+  private
+
+  def send_notification(title:, message:, url:)
     creds = Rails.application.credentials.pushover
     return unless creds.present?
 
