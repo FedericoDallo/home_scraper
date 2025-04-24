@@ -25,7 +25,8 @@ class BaseScraper
         next if reserved?(card)
 
         title, href, price = get_info(card)
-        url = URI.join(base_url, href).to_s
+        safe_href = URI::DEFAULT_PARSER.escape(href)
+        url = URI.join(base_url, safe_href).to_s
         next if !allowed_price?(price, card, url)
 
         { title:, url:, price: }
