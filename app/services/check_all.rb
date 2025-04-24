@@ -1,18 +1,19 @@
 class CheckAll
   def initialize
     @scrapers = [
-      InfoCasasScraper.new,
-      MercadoLibreScraper.new,
-      RemaxScraper.new
+      InfoCasasScraper,
+      MercadoLibreScraper,
+      RemaxScraper,
+      HousiScraper
     ]
   end
-  
+
   def run
     notifier = Notifier.new
     cache = ListingCacheJson.new
     @scrapers.each do |scraper|
-      name = scraper.class::NAME
-      scraper.fetch_listings.each do |result|
+      name = scraper::NAME
+      scraper.new.fetch_listings.each do |result|
         result => { title: message, url: }
         if cache.read(name, url)
           puts "Already seen: #{url}"
