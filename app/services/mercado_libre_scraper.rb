@@ -1,7 +1,3 @@
-require 'httparty'
-require 'nokogiri'
-require 'uri'
-
 class MercadoLibreScraper < BaseScraper
   NAME = "mercado_libre"
 
@@ -26,15 +22,11 @@ class MercadoLibreScraper < BaseScraper
     doc.css("li.ui-search-layout__item")
   end
 
-  def get_info(card)
-    [title(card), href(card), get_price(card)]
-  end
-
-  def title(card)
+  def get_title(card)
     card.at_css("a.poly-component__title")&.text&.strip || ""
   end
   
-  def href(card)
+  def get_href(card)
     card.at_css("a.poly-component__title")["href"].split("#")[0]
   end
 
@@ -42,28 +34,11 @@ class MercadoLibreScraper < BaseScraper
     card.at_css("div.poly-price__current span.andes-money-amount__fraction")&.text&.strip.gsub(".", "").to_i
   end
 
-  def garage_on_title?(card)
-    title = card.at_css("a.poly-component__title")&.text&.strip #cambiar por el nuevo selector
-    return false unless title.present?
-
-    garage_in_text?(title)
-  end
-  
-  def garage_on_page?(url)
-    response = HTTParty.get(url, headers: { "User-Agent" => "Mozilla/5.0" })
-    doc = Nokogiri::HTML(response.body)
-
-    garages_on_info(doc) > 0 || garage_on_description?(doc)
+  def get_description(doc)
+    doc.at_css(".ui-pdp-collapsable__container")&.children&.first&.children&.last&.text
   end
 
   def garages_on_info(doc)
     0
-  end
-
-  def garage_on_description?(doc)
-    description = doc.at_css(".ui-pdp-collapsable__container")&.children&.first&.children&.last&.text
-    return false unless description.present?
-
-    garage_in_text?(description)
   end
 end

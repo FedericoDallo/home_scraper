@@ -247,8 +247,8 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   debug
-  httparty
-  nokogiri
+  httparty (~> 0.23.1)
+  nokogiri (~> 1.18, >= 1.18.8)
   puma
   rails (~> 8.0.2)
   solid_cache

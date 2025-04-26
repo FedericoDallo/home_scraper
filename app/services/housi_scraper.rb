@@ -1,7 +1,3 @@
-require 'httparty'
-require 'nokogiri'
-require 'uri'
-
 class HousiScraper < BaseScraper
   NAME = "housi"
 
@@ -17,7 +13,7 @@ class HousiScraper < BaseScraper
 
   def listings_path
     [
-      "locations=51731&min-roofed=45&min-price=&max-price=35000&currency=UYU&o=2,2&1=1"
+      "locations=51731&min-roofed=#{MIN_DIMENSION}&min-price=&max-price=#{MAX_PRICE + GARAGE_PRICE_INCREASE}&currency=UYU&o=2,2&1=1"
     ]
   end
 
@@ -25,15 +21,11 @@ class HousiScraper < BaseScraper
     doc.css("#propiedades").css("li")
   end
 
-  def get_info(card)
-    [title(card), href(card), get_price(card)]
-  end
-
-  def title(card)
+  def get_title(card)
     card.at_css(".prop-desc-tipo-ub")&.text&.strip || ""
   end
 
-  def href(card)
+  def get_href(card)
     card.children[1]["href"]
   end
 
@@ -41,28 +33,12 @@ class HousiScraper < BaseScraper
     get_price_number(card.children[3].children[0].text)
   end
 
-  def garage_on_title?(card)
-    title = card.at_css("a.poly-component__title")&.text&.strip #cambiar por el nuevo selector
-    return false unless title.present?
-
-    garage_in_text?(title)
-  end
-
-  def garage_on_page?(url)
-    response = HTTParty.get(url, headers: { "User-Agent" => "Mozilla/5.0" })
-    doc = Nokogiri::HTML(response.body)
-
-    garages_on_info(doc) > 0 || garage_on_description?(doc)
+  def get_description(doc)
+    desc_html = doc.at_css("#prop-desc").text
+    Nokogiri::HTML(desc_html).css("p").text.strip
   end
 
   def garages_on_info(doc)
     0
-  end
-
-  def garage_on_description?(doc)
-    description = doc.at_css(".ui-pdp-collapsable__container")&.children&.first&.children&.last&.text
-    return false unless description.present?
-
-    garage_in_text?(description)
   end
 end

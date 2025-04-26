@@ -1,7 +1,3 @@
-require 'httparty'
-require 'nokogiri'
-require 'uri'
-
 class RemaxScraper < BaseScraper
   NAME = "remax"
 
@@ -22,27 +18,19 @@ class RemaxScraper < BaseScraper
   end
 
   def get_cards(doc)
-    doc.css(*parse_css_class(css_selector))
-  end
-
-  def css_selector
-    "card-remax viewList"
+    doc.css(".card-remax", ".viewList")
   end
 
   def reserved?(card)
     card.at_css("qr-tag p")&.text&.strip&.downcase == "reservada"
   end
 
-  def get_info(card)
-    [title(card), href(card), get_price(card)]
-  end
-  
-  def title(card)
+  def get_title(card)
     card.at_css("p.card__description")&.text&.strip ||
       card.at_css("a.card-remax__href")&.text&.strip
   end
 
-  def href(card)
+  def get_href(card)
     card.at_css("a.card-remax__href")["href"]
   end
 
@@ -54,32 +42,11 @@ class RemaxScraper < BaseScraper
     base_price + expenses
   end
 
-  def garage_on_title?(card)
-    title = card.at_css("p.card__description")&.text&.strip
-    return false unless title.present?
-
-    garage_in_text?(title)
-  end
-
-  def garage_on_page?(url)
-    response = HTTParty.get(url, headers: { "User-Agent" => "Mozilla/5.0" })
-    doc = Nokogiri::HTML(response.body)
-
-    goi = garages_on_info(doc)
-    god = garage_on_description?(doc)
-    puts "Garage on info: #{goi}"
-    puts "Garage on description: #{god}"
-    goi > 0 || god
+  def get_description(doc)
+    doc.at_css("#last")&.text&.strip
   end
 
   def garages_on_info(doc)
     doc.at_css('[data-info="parkingSpaces"]')&.children.to_a[1]&.text.to_i
-  end
-
-  def garage_on_description?(doc)
-    description = doc.at_css("#last")&.text&.strip
-    return false unless description.present?
-
-    garage_in_text?(description)
   end
 end
