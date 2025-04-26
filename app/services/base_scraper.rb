@@ -11,40 +11,32 @@ class BaseScraper
     "Accept-Language" => "en-US,en;q=0.5"
   }
 
-  MAX_PRICE = 38_000
-  GARAGE_PRICE_INCREASE = 4_500
-
-  MIN_DIMENSION = 45
-
-  def fetch_listings
+  def fetch_listings(debugging_mode = false)
     listings_path.map do |path|
-      response = HTTParty.get("#{base_url}#{base_path}#{path}", headers: COMMON_HEADERS)
+      safe_path = URI::DEFAULT_PARSER.escape("#{base_path}#{path}")
+      puts "Fetching #{base_url}#{safe_path}" if debugging_mode
+      response = HTTParty.get("#{base_url}#{safe_path}", headers: COMMON_HEADERS)
       doc = Nokogiri::HTML(response.body)
 
-      get_cards(doc).map do |card|
+      results = get_cards(doc).map do |card|
+        print_info(card) if debugging_mode
         next if reserved?(card)
 
         title, href, price = get_info(card)
-        safe_href = URI::DEFAULT_PARSER.escape(href)
-        url = URI.join(base_url, safe_href).to_s
+        url = URI.join(base_url, href).to_s
         next if !allowed_price?(price, card, url)
 
         { title:, url:, price: }
       end.compact.uniq { |l| l[:url] }
+
+      if debugging_mode
+        puts
+        puts "=" * 100
+        puts "=" * 100
+        puts
+      end
+
+      results
     end.flatten
-  end
-
-  private
-
-  def allowed_price?(price, card, url)
-    price <= MAX_PRICE || (price <= MAX_PRICE + GARAGE_PRICE_INCREASE && has_garage?(card, url))
-  end
-
-  def has_garage?(card, url)
-    garage_on_title?(card) || garage_on_page?(url)
-  end
-
-  def reserved?(card)
-    false
   end
 end

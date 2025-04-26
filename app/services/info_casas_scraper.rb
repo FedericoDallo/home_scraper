@@ -1,7 +1,3 @@
-require 'httparty'
-require 'nokogiri'
-require 'uri'
-
 class InfoCasasScraper < BaseScraper
   NAME = "info_casas"
 
@@ -25,15 +21,11 @@ class InfoCasasScraper < BaseScraper
     doc.css(".lc-data")
   end
 
-  def get_info(card)
-    [title(card), href(card), get_price(card)]
-  end
-
-  def title(card)
+  def get_title(card)
     card["title"].capitalize || ""
   end
 
-  def href(card)
+  def get_href(card)
     card["href"]
   end
 
@@ -44,20 +36,6 @@ class InfoCasasScraper < BaseScraper
         (get_price_number(expenses_container[2]&.text) rescue 0)
       ].sum
     end
-  end
-
-  def garage_on_title?(card)
-    title = card.at_css(".lc-description")&.text&.strip
-    return false unless title.present?
-
-    garage_in_text?(title)
-  end
-
-  def garage_on_page?(url)
-    response = HTTParty.get(url, headers: { "User-Agent" => "Mozilla/5.0" })
-    doc = Nokogiri::HTML(response.body)
-
-    garages_on_info(doc) > 0 || garage_on_description?(doc)
   end
 
   def get_next_data(doc)
@@ -75,11 +53,9 @@ class InfoCasasScraper < BaseScraper
 
     property["garage"]
   end
-  
-  def garage_on_description?(doc)
-    description = doc.css(".ant-typography", ".property-description")&.text&.strip
-    return false unless description.present?
 
-    garage_in_text?(description)
+  def get_description(doc)
+    classes = "ant-typography property-description"
+    find_by_css_classes(doc, classes)&.text&.strip
   end
 end
