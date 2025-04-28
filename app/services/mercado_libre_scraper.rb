@@ -39,7 +39,9 @@ class MercadoLibreScraper < BaseScraper
   end
 
   def get_expenses(doc)
-    expenses_text = doc.at_css(".ui-pdp-color--GRAY.ui-pdp-size--XSMALL.ui-pdp-family--REGULAR.ui-pdp-maintenance-fee-ltr").text
+    expenses_text = doc.at_css(".ui-pdp-color--GRAY.ui-pdp-size--XSMALL.ui-pdp-family--REGULAR.ui-pdp-maintenance-fee-ltr")&.text
+    return 0 unless expenses_text.present?
+
     get_price_number(expenses_text) || 0
   end
 
