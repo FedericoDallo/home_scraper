@@ -29,13 +29,24 @@ class HousiScraper < BaseScraper
     card.children[1]["href"]
   end
 
-  def get_price(card)
-    get_price_number(card.children[3].children[0].text)
+  def get_prices(card)
+    [get_price_number(card.children[3].children[0].text)]
+  end
+
+  def get_expenses(doc)
+    expenses_text = doc.at_css("#lista_informacion_basica").children.find{ |metadata_item| metadata_item.text.include?("Expensas") }.text
+    get_price_number(expenses_text) || 0
   end
 
   def get_description(doc)
     desc_html = doc.at_css("#prop-desc").text
-    Nokogiri::HTML(desc_html).css("p").text.strip
+    Nokogiri::HTML(desc_html).css("div", "p").text.strip
+  end
+
+  def garage_on_description?(doc)
+    desc_html = doc.at_css("#prop-desc").text
+    desc_obj = Nokogiri::HTML(desc_html).css("div", "p")
+    desc_obj.find { |item| item.text.include?("garaje") }.text == "Tiene garaje."
   end
 
   def garages_on_info(doc)

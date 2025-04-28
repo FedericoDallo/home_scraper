@@ -34,12 +34,12 @@ class RemaxScraper < BaseScraper
     card.at_css("a.card-remax__href")["href"]
   end
 
-  def get_price(card)
+  def get_prices(card)
     children = card.at_css(".card__price-and-expenses").children
     base_price = get_price_number(children[1].children.first.text)
-    expenses = get_price_number(children[2].children.first.text)
+    expenses = get_price_number(children[2].children.first.text) rescue 0
 
-    base_price + expenses
+    [base_price, expenses]
   end
 
   def get_description(doc)

@@ -9,26 +9,29 @@ class CheckAll
     ]
   end
 
-  def run(debugging_mode = false)
+  def run(mode = NORMAL_MODE)
     notifier = Notifier.new
     cache = ListingCacheJson.new
-    @scrapers.each do |scraper|
+    @scrapers.map do |scraper|
       name = scraper::NAME
-      scraper.new.fetch_listings(debugging_mode).each do |result|
+      listings = scraper.new.fetch_listings(mode)
+      listings.each do |result|
         result => { title: message, url: }
         if cache.read(name, url)
           puts "Already seen: #{url}"
         else
-          unless debugging_mode
+          if mode == NORMAL_MODE
             cache.write(name, url)
             notifier.send(title: "Nuevo apto en #{name.titleize}", message:, url:)
           end
           puts "New listing: #{url}"
         end
       end
-    end
+
+      [name.to_sym, listings]
+    end.to_h
 
   rescue => e
-    debugging_mode ? puts(e.message) : notifier.send_error(e)
+    mode == NORMAL_MODE ? notifier.send_error(e) : puts(e.message)
   end
 end

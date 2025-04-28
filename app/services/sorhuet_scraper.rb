@@ -29,8 +29,22 @@ class SorhuetScraper < BaseScraper
     card.at_css("a")["href"]
   end
 
-  def get_price(card)
-    get_price_number(card.at_css(".precio").text)
+  def get_prices(card)
+    [get_price_number(card.at_css(".precio").text)]
+  end
+
+  def get_metadata(card)
+    card.css(".dato")
+  end
+
+  def get_expenses(doc)
+    metadata = get_metadata(doc)
+    return 0 unless metadata.present?
+
+    expenses = metadata.find { |item| item.text.include?("Gastos comunes:") }
+    return 0 unless expenses.present?
+
+    get_price_number(expenses.children[1].text.strip)
   end
 
   def get_description(doc)
@@ -38,6 +52,12 @@ class SorhuetScraper < BaseScraper
   end
 
   def garages_on_info(doc)
-    0
+    metadata = get_metadata(doc)
+    return 0 unless metadata.present?
+
+    garages = metadata.find { |item| item.text.include?("Garages:") }
+    return 0 unless garages.present?
+
+    garages.children[1].text.strip.to_i
   end
 end
