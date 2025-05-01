@@ -7,12 +7,16 @@ class CheckAll
       HousiScraper,
       SorhuetScraper
     ]
+
+    @apis = [
+      ImperiumInmobiliaria
+    ]
   end
 
   def run(mode = NORMAL_MODE)
     notifier = Notifier.new
     cache = ListingCacheJson.new
-    @scrapers.map do |scraper|
+    (@scrapers + @apis).map do |scraper|
       name = scraper::NAME
       listings = scraper.new.fetch_listings(mode)
       listings.each do |result|
