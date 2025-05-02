@@ -5,12 +5,6 @@ require 'uri'
 class BaseScraper
   include ScraperCommon
 
-  COMMON_HEADERS = {
-    "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-    "Accept" => "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Accept-Language" => "en-US,en;q=0.5"
-  }
-
   def fetch_listings(mode = 0)
     listings_path.map do |path|
       safe_path = URI::DEFAULT_PARSER.escape("#{base_path}#{path}")

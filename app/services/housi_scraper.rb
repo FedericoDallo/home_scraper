@@ -46,7 +46,7 @@ class HousiScraper < BaseScraper
   def garage_on_description?(doc)
     desc_html = doc.at_css("#prop-desc").text
     desc_obj = Nokogiri::HTML(desc_html).css("div", "p")
-    desc_obj.find { |item| item.text.include?("garaje") }.text == "Tiene garaje."
+    desc_obj.find { |item| item.text.include?("garaje") }&.text&.eql?("Tiene garaje.")
   end
 
   def garages_on_info(doc)

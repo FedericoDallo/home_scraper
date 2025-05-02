@@ -32,6 +32,13 @@ class CheckAll
     end.to_h
 
   rescue => e
-    mode == NORMAL_MODE ? notifier.send_error(e) : puts(e.message)
+    case mode
+    when NORMAL_MODE
+      notifier.send_error(e)
+    when DEBUGGING_MODE
+      debugger
+    when LOG_MODE
+      puts e.message
+    end
   end
 end
