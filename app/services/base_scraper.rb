@@ -23,7 +23,7 @@ class BaseScraper
         if mode == NORMAL_MODE
           { title:, url:, prices: prices.sum }
         else
-          instance_doc = Nokogiri::HTML(HTTParty.get(url, headers: COMMON_HEADERS))
+          instance_doc = Nokogiri::HTML(HTTParty.get(url, headers: COMMON_HEADERS).body)
           {
             title:,
             url:,
