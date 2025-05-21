@@ -23,7 +23,7 @@ class ImperiumInmobiliaria < BaseApi
   private
 
   def useless?(result)
-    result[:bedrooms].to_i.zero?
+    result[:area].to_i < MIN_DIMENSION || result[:bedrooms].to_i.zero?
   end
 
   def front_url
