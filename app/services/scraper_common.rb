@@ -24,16 +24,6 @@ module ScraperCommon
     ]
   end
 
-  def allowed_price?(prices, card, url)
-    return prices.sum <= MAX_PRICE || (prices.sum <= MAX_PRICE + GARAGE_PRICE_INCREASE && garage_on_title?(card)) if prices.size == 2
-
-    response = HTTParty.get(url, headers: { "User-Agent" => "Mozilla/5.0" })
-    doc = Nokogiri::HTML(response.body)
-
-    prices << get_expenses(doc)
-    prices.sum <= MAX_PRICE || (prices.sum <= MAX_PRICE + GARAGE_PRICE_INCREASE && garage_on_page?(doc))
-  end
-
   def garage_on_title?(card)
     title = get_title(card)
     return false unless title.present?

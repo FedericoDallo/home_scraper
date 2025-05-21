@@ -4,20 +4,27 @@ class ImperiumInmobiliaria < BaseApi
   def fetch_listing(url)
     response_http = HTTParty.get(url, headers: COMMON_HEADERS)
     response = JSON.parse(response_http.body).deep_symbolize_keys
-    response[:response][:property] => { id:, title:, description: description_raw, price: prices }
+    response[:response][:property] => { id:, title:, description: description_raw, price:, parking: garages }
     description_html = Nokogiri::HTML(description_raw)
-    expenses = description_html.css("p").to_a.find { |coso| coso.text.downcase.include?("gastos comunes") }
-    prices = [prices.to_i, get_price_number(expenses.text)]
+    expenses_html = description_html.css("p").to_a.find { |coso| coso.text.downcase.include?("gastos comunes") }
+    expenses = get_price_number(expenses_html&.text.to_s)
 
     {
       id:,
       title:,
-      url:,
-      prices:
+      url: get_front_url(id),
+      price:,
+      expenses: expenses.to_i,
+      garages: garages.to_i,
+      description: description_html.text
     }
   end
 
   private
+
+  def useless?(result)
+    result[:bedrooms].to_i.zero?
+  end
 
   def front_url
     "https://www.inmobiliariaimperium.com"
@@ -60,11 +67,15 @@ class ImperiumInmobiliaria < BaseApi
     [
       result[:title],
       get_url(result[:id]),
-      [result[:price]]
+      [result[:price].to_i]
     ]
   end
 
   def get_url(id)
-    "#{front_url}/listing-property-details?id=#{id}"
+    "#{base_url}#{base_path_details}?id=#{id}"
+  end
+
+  def get_front_url(id)
+    "#{front_url}#{base_path_details}?id=#{id}"
   end
 end
