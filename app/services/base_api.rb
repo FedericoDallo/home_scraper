@@ -17,7 +17,7 @@ class BaseApi
 
       {
         title:,
-        url:,
+        url: get_front_url(result[:id]),
         prices:
       }
     end
