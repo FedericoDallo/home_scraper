@@ -9,7 +9,8 @@ class CheckAll
     ]
 
     @apis = [
-      ImperiumInmobiliaria
+      ImperiumInmobiliaria,
+      InfoCasasApiScraper
     ]
   end
 
