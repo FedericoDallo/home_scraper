@@ -8,7 +8,7 @@ gem "sqlite3", ">= 2.1"
 
 # Scraping
 gem 'httparty', '~> 0.23.1'
-gem 'nokogiri', '~> 1.18', '>= 1.18.8'
+gem 'nokogiri', '~> 1.18'
 
 # Servidor web
 gem "puma"
