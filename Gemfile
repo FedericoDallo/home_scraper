@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # Framework base
-gem "rails", "~> 8.0.2"
+gem "rails", "~> 8.0.3"
 
 # Base de datos local (opcional, para desarrollo/test)
 gem "sqlite3", ">= 2.1"
