@@ -7,7 +7,7 @@ gem "rails", "~> 8.0.2"
 gem "sqlite3", ">= 2.1"
 
 # Scraping
-gem 'httparty', '~> 0.23.1'
+gem 'httparty', '~> 0.23.2'
 gem 'nokogiri', '~> 1.18', '>= 1.18.8'
 
 # Servidor web
