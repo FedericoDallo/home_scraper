@@ -36,75 +36,45 @@ class InfoCasasApiScraper < BaseApi
   end
 
   def body
+    b = effective_bounds
+    max_price_param = b.max_price + b.garage_price_increase
+    m2_min = b.min_dimension
+    params = {
+      page:1,
+      order:2,
+      bedroomsExactMode:false,
+      bathroomsExactMode:false,
+      operation_type_id:2,
+      property_type_id:[2],
+      season:nil,
+      dateFrom:nil,
+      dateTo:nil,
+      currencyID:2,
+      m2Currency:2,
+      guests:nil,
+      projects:nil,
+      minPrice:nil,
+      maxPrice: max_price_param,
+      commonExpenses:nil,
+      rooms:nil,
+      mapView:false,
+      neighborhood_id:[],
+      estate_id:nil,
+      bedrooms:[1],
+      publicationDate:0,
+      m2Min: m2_min,
+      m2Max:nil,
+      map_polygon:MAP_POLYGON2,
+      map_bounds:MAP_BOUNDS2
+    }
     JSON.generate([{
       operationName:"ResultsGird_v2",
-      variables: {
-        rows:50,
-        params: {
-          page:1,
-          order:2,
-          bedroomsExactMode:false,
-          bathroomsExactMode:false,
-          operation_type_id:2,
-          property_type_id:[2],
-          season:nil,
-          dateFrom:nil,
-          dateTo:nil,
-          currencyID:2,
-          m2Currency:2,
-          guests:nil,
-          projects:nil,
-          minPrice:nil,
-          maxPrice:42000,
-          commonExpenses:nil,
-          rooms:nil,
-          mapView:false,
-          neighborhood_id:[],
-          estate_id:nil,
-          bedrooms:[1],
-          publicationDate:0,
-          m2Min:45,
-          m2Max:nil,
-          map_polygon:MAP_POLYGON2,
-          map_bounds:MAP_BOUNDS2
-        },
-        page:1,
-        source:0
-      },
+      variables: { rows:50, params: params, page:1, source:0 },
       query:
       "query ResultsGird_v2($rows: Int!, $params: SearchParamsInput!, $page: Int, $source: Int) {\n  searchFast(params: $params, first: $rows, page: $page, source: $source)\n}\n"},
     {
       operationName:"searchUrl",
-      variables: {
-        params:{
-          page:1,
-          order:2,
-          bedroomsExactMode:false,
-          bathroomsExactMode:false,
-          operation_type_id:2,
-          property_type_id:[2],
-          season:nil,
-          dateFrom:nil,
-          dateTo:nil,
-          currencyID:2,
-          m2Currency:2,
-          guests:nil,
-          projects:nil,
-          minPrice:nil,
-          maxPrice:42000,
-          commonExpenses:nil,
-          rooms:nil,
-          mapView:false,
-          neighborhood_id:[],
-          estate_id:nil,
-          bedrooms:[1],
-          publicationDate:0,
-          m2Min:45,
-          m2Max:nil,
-          map_polygon:MAP_POLYGON2,
-          map_bounds:MAP_BOUNDS2
-        }
-      },
+      variables: { params: params },
       query:
       "query searchUrl($params: SearchParamsInput!) {
         searchUrl(params: $params) {

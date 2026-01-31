@@ -8,6 +8,10 @@ module ScraperCommon
 
   GARAGE_KEYWORDS = %w[garage cochera estacionamiento garaje gge gje]
 
+  def effective_bounds
+    @bounds || UsersConfig.default_bounds
+  end
+
   COMMON_HEADERS = {
     "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
     "Accept" => "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",

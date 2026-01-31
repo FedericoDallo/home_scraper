@@ -1,0 +1,18 @@
+# Copiar a users.yml y completar con tus datos.
+# pushover_user_key: tu User Key de Pushover (cada usuario recibe sus notificaciones).
+# El api_key de Pushover sigue en Rails credentials (pushover.api_key).
+
+users:
+  - id: usuario_1
+    pushover_user_key: "tu_pushover_user_key_1"
+    filters:
+      max_price: 38000
+      min_dimension: 45
+      garage_price_increase: 4500
+
+  - id: usuario_2
+    pushover_user_key: "tu_pushover_user_key_2"
+    filters:
+      max_price: 42000
+      min_dimension: 50
+      garage_price_increase: 5000

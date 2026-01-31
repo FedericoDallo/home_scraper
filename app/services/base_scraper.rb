@@ -5,6 +5,8 @@ require 'uri'
 class BaseScraper
   include ScraperCommon
 
+  attr_accessor :bounds
+
   def fetch_listings(mode = 0)
     listings_path.map do |path|
       safe_path = URI::DEFAULT_PARSER.escape("#{base_path}#{path}")
@@ -21,7 +23,7 @@ class BaseScraper
         next if !allowed_price?(prices, card, url)
 
         if mode == NORMAL_MODE
-          { title:, url:, prices: prices.sum }
+          { title:, url:, prices: prices.sum, garage_on_title: garage_on_title?(card) }
         else
           instance_doc = Nokogiri::HTML(HTTParty.get(url, headers: COMMON_HEADERS).body)
           {
@@ -52,12 +54,13 @@ class BaseScraper
   private
 
   def allowed_price?(prices, card, url)
-    return prices.sum <= MAX_PRICE || (prices.sum <= MAX_PRICE + GARAGE_PRICE_INCREASE && garage_on_title?(card)) if prices.size == 2
+    b = effective_bounds
+    return prices.sum <= b.max_price || (prices.sum <= b.max_price + b.garage_price_increase && garage_on_title?(card)) if prices.size == 2
 
     response = HTTParty.get(url, headers: { "User-Agent" => "Mozilla/5.0" })
     doc = Nokogiri::HTML(response.body)
 
     prices << get_expenses(doc)
-    prices.sum <= MAX_PRICE || (prices.sum <= MAX_PRICE + GARAGE_PRICE_INCREASE && garage_on_page?(doc))
+    prices.sum <= b.max_price || (prices.sum <= b.max_price + b.garage_price_increase && garage_on_page?(doc))
   end
 end

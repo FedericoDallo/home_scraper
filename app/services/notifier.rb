@@ -3,8 +3,8 @@ require 'httparty'
 class Notifier
   PUSHOVER_URL = "https://api.pushover.net/1/messages.json"
 
-  def send(title:, message:, url:)
-    send_notification(title:, message:, url:)
+  def send(title:, message:, url:, user_key: nil)
+    send_notification(title:, message:, url:, user_key:)
   end
 
   def send_error(error)
@@ -13,11 +13,12 @@ class Notifier
 
   private
 
-  def send_notification(title:, message:, url:)
+  def send_notification(title:, message:, url:, user_key: nil)
     creds = Rails.application.credentials.pushover
     return unless creds.present?
 
-    creds => { api_key: token, user_key: user }
+    creds => { api_key: token, user_key: default_user }
+    user = user_key.presence || default_user
 
     HTTParty.post(PUSHOVER_URL, body: {
       token:,

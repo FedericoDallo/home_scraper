@@ -12,8 +12,9 @@ class InfoCasasScraper < BaseScraper
   end
 
   def listings_path
+    b = effective_bounds
     [
-      "/pocitos-y-en-pocitos-nuevo-y-en-punta-carretas/1-o-mas-dormitorios/hasta-#{MAX_PRICE + GARAGE_PRICE_INCREASE}/pesos/m2-desde-#{MIN_DIMENSION}/totales/incluyendo-gastos-comunes/publicado-hoy"
+      "/pocitos-y-en-pocitos-nuevo-y-en-punta-carretas/1-o-mas-dormitorios/hasta-#{b.max_price + b.garage_price_increase}/pesos/m2-desde-#{b.min_dimension}/totales/incluyendo-gastos-comunes/publicado-hoy"
     ]
   end
 

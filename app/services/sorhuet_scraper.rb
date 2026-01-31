@@ -12,8 +12,9 @@ class SorhuetScraper < BaseScraper
   end
 
   def listings_path
+    b = effective_bounds
     [
-      "/$U/Sin_precio_mínimo/#{MAX_PRICE + GARAGE_PRICE_INCREASE}/Apartamento/Montevideo-Pocitos/Habitaciones-1-2"
+      "/$U/Sin_precio_mínimo/#{b.max_price + b.garage_price_increase}/Apartamento/Montevideo-Pocitos/Habitaciones-1-2"
     ]
   end
 

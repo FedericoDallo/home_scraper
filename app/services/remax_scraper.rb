@@ -12,8 +12,9 @@ class RemaxScraper < BaseScraper
   end
 
   def listings_path
+    b = effective_bounds
     [
-      "?page=0&pageSize=50&sort=-createdAt&in:operationId=2&in:eStageId=0,1,2,3,4&in:typeId=1,2,3,4,5,6,7,8&pricein=3:0:#{MAX_PRICE + GARAGE_PRICE_INCREASE}&gte:dimensionCovered=#{MIN_DIMENSION}&locations=in:::1441@%3Cb%3EPocitos%3C%2Fb%3E::::"
+      "?page=0&pageSize=50&sort=-createdAt&in:operationId=2&in:eStageId=0,1,2,3,4&in:typeId=1,2,3,4,5,6,7,8&pricein=3:0:#{b.max_price + b.garage_price_increase}&gte:dimensionCovered=#{b.min_dimension}&locations=in:::1441@%3Cb%3EPocitos%3C%2Fb%3E::::"
     ]
   end
 

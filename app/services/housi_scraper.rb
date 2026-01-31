@@ -12,8 +12,9 @@ class HousiScraper < BaseScraper
   end
 
   def listings_path
+    b = effective_bounds
     [
-      "locations=51731&min-roofed=#{MIN_DIMENSION}&min-price=&max-price=#{MAX_PRICE + GARAGE_PRICE_INCREASE}&currency=UYU&o=2,2&1=1"
+      "locations=51731&min-roofed=#{b.min_dimension}&min-price=&max-price=#{b.max_price + b.garage_price_increase}&currency=UYU&o=2,2&1=1"
     ]
   end
 
