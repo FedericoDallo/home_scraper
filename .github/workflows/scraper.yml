@@ -27,9 +27,31 @@ jobs:
           git config --global user.name "scraper-bot"
           git config --global user.email "scraper@example.com"
 
-      - name: Clonar repo de cache
+      # Diagnóstico: comprobar si el token de cache está configurado (sin mostrar el valor).
+      - name: Verificar secret CACHE_REPO_TOKEN
         run: |
-          git clone https://x-access-token:${{ secrets.CACHE_REPO_TOKEN }}@github.com/FedericoDallo/home_scraper_cache.git cache_repo
+          if [ -z "$CACHE_REPO_TOKEN" ]; then
+            echo "CACHE_REPO_TOKEN: NOT_SET_OR_EMPTY"
+            echo "Acción: en Settings → Secrets and variables → Actions del repo home_scraper, crear secret CACHE_REPO_TOKEN con un PAT de GitHub con acceso a FedericoDallo/home_scraper_cache."
+            exit 1
+          else
+            echo "CACHE_REPO_TOKEN: set (longitud=${#CACHE_REPO_TOKEN})"
+          fi
+        env:
+          CACHE_REPO_TOKEN: ${{ secrets.CACHE_REPO_TOKEN }}
+
+      # Clona el repo de cache con el PAT (secret CACHE_REPO_TOKEN).
+      # Si "Verificar secret" pasa pero este paso falla con Bad credentials: el PAT está expirado o sin permisos.
+      # Crear nuevo PAT: Classic con scope "repo", o Fine-grained con repo home_scraper_cache y Contents Read and write.
+      - name: Clonar repo de cache
+        uses: actions/checkout@v4
+        with:
+          repository: FedericoDallo/home_scraper_cache
+          token: ${{ secrets.CACHE_REPO_TOKEN }}
+          path: cache_repo
+
+      - name: Preparar cache_data
+        run: |
           mkdir -p cache_data
           cp -r cache_repo/. cache_data/
 
@@ -57,4 +79,8 @@ jobs:
           git add .
           git status
           git commit -m "update seen urls [skip ci]" || echo "no changes"
+          git remote set-url origin "https://x-access-token:${{ secrets.CACHE_REPO_TOKEN }}@github.com/FedericoDallo/home_scraper_cache.git"
           git push
+        env:
+          # Evita que git pida usuario en caso de fallo de token
+          GIT_TERMINAL_PROMPT: 0
